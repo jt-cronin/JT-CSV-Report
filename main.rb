@@ -1,11 +1,14 @@
 require "CSV"
 require 'pry'
+require_relative 'functions.rb'
+
+input, *type = ARGV
+input = input.to_sym
+type = type.first.to_s
+type = type.to_sym
 
 
-
-
-@accounts = {}
-
+@accounts = {}	
 
 CSV.foreach("accounts.txt", {headers: true, return_headers: false}) do |row|
 		@accounts[row["Account"].chomp.to_sym] ={}
@@ -14,7 +17,6 @@ CSV.foreach("accounts.txt", {headers: true, return_headers: false}) do |row|
 CSV.foreach("accounts.txt", {headers: true, return_headers: false}) do |row|
 		@accounts[row["Account"].chomp.to_sym][row["Category"].chomp.to_sym] = []
 	end
-
 
 CSV.foreach("accounts.txt", {headers: true, return_headers: false}) do |row|
 	account = row["Account"].chomp.to_sym
@@ -29,36 +31,27 @@ CSV.foreach("accounts.txt", {headers: true, return_headers: false}) do |row|
 	end
 end
 
-def categoryTotal(account, category, total = 0)
-	@accounts[account][category].each {|amount| total += amount}
-	total.round(2)
-end
+@name = input
 
-
-def categoryAverage(account, category)
-	(categoryTotal(account, category) /@accounts[account][category].length).round(2)
-end
-
-
-def calcBalance(account, balance = 0)
-	@accounts[account].each {|category, transaction| transaction.each {|amount| balance += amount} }
-	balance.round(2)
-end
-
-
-def displayAccount account
-	puts "Account: #{account}.. Balance: $#{calcBalance(account)}"
-	puts "Category".ljust(20) + "Total Spent".ljust(20) + "Average Transaction"
-	@accounts[account].each do |category, transaction|
-		puts category.to_s.ljust(20) + "$" +categoryTotal(account, category).to_s.ljust(20) + "$" + categoryAverage(account, category).to_s.ljust(20)
-	end
-	nil
-end
-
-@accounts.each do |account, accountdata|
-	displayAccount account
+if @accounts.has_key?(@name)
+	puts "Welcome, let me pull up your account"
 	puts
+else
+	abort "Sorry, we do not recognize #{@name} as an account" 
 end
+
+case type
+	when :CSV
+		displayCSV @name
+	when :HTML
+		displayHTML @name
+	else
+		displayReg @name
+	end
+
+	
+
+
 
 
 
